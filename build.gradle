@@ -1,0 +1,27 @@
+apply plugin: 'java-library'
+
+// Could probably be as low as 1.5 for both of these parameters:
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+description = 'Example project for Gradle issue #8996'
+group = 'com.example.gradle.i8996'
+
+sourceSets {
+	processors
+
+	main {
+		java {
+			// Append to classpath so the annotation can be referenced:
+			compileClasspath += processors.output
+		}
+	}
+}
+
+dependencies {
+	annotationProcessor files("$buildDir/classes/java/processors")
+}
+
+compileJava {
+	options.compilerArgs << '-processor' << 'com.example.gradle.i8996.FaultyProcessor'
+}
