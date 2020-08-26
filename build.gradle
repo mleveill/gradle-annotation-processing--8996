@@ -8,20 +8,38 @@ description = 'Example project for Gradle issue #8996'
 group = 'com.example.gradle.i8996'
 
 sourceSets {
-	processors
+	// Used by both annotation processors and main:
+	shared
 
-	main {
-		java {
-			// Append to classpath so the annotation can be referenced:
-			compileClasspath += processors.output
-		}
-	}
+	// Used by main:
+	processors { java { compileClasspath += shared.output } }
+
+	main { java { compileClasspath += shared.output + processors.output } }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-	annotationProcessor files("$buildDir/classes/java/processors")
+	processorsImplementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+
+	annotationProcessor files(sourceSets.processors.java.outputDir)
+
+	// Intentionally don't pass this dependency to annotation
+	// processor runtime classpath in order to simulate a misconfiguration:
+	//annotationProcessor group: 'com.google.guava', name: 'guava', version: '29.0-jre'
+}
+
+compileSharedJava {
+	outputs.upToDateWhen { false }
+}
+
+compileProcessorsJava {
+	outputs.upToDateWhen { false }
 }
 
 compileJava {
+	outputs.upToDateWhen { false }
 	options.compilerArgs << '-processor' << 'com.example.gradle.i8996.FaultyProcessor'
 }

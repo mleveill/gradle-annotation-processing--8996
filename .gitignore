@@ -1,2 +1,3 @@
-/gradle-annotation-processing-8996/.gradle/
+.gradle/
 /build/
+.gradle/
